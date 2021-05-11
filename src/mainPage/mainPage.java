@@ -9,16 +9,78 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.interactions.Actions;
 
-import static org.junit.Assert.*;
-import static org.junit.jupiter.api.Assertions.assertAll;
+import model.Account;
 
-import org.junit.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.*;
+
+import java.io.File;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+
+import org.apache.poi.ss.usermodel.Row;
+
+import org.apache.poi.ss.usermodel.Sheet;
+
+import org.apache.poi.ss.usermodel.Workbook;
+
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+
 
 public class mainPage {
+	String siteUrl = "https://depositweb.herokuapp.com";
 	WebDriver driver;
 	JavascriptExecutor js;
+
+	static ArrayList<Account> accList = new ArrayList<>();
+
+	@BeforeAll
+	static void setUp() throws IOException {
+		String filePath = "C:\\Users\\DELL\\eclipse-workspace\\BankAutomation\\data";
+		String fileName = "Account.xlsx";
+		String sheetName = "Sheet1";
+		System.out.print("=====================================");
+		File file = new File(filePath + "\\" + fileName);
+
+		FileInputStream inputStream = new FileInputStream(file);
+
+		Workbook workbook = new XSSFWorkbook(inputStream);
+
+		// Read sheet inside the workbook by its name   
+
+		Sheet sheet = workbook.getSheet(sheetName);
+
+		// Find number of rows in excel file
+
+		int rowCount = sheet.getLastRowNum() - sheet.getFirstRowNum();
+		
+
+		// Create a loop over all the rows of excel file to read it
+
+		for (int i = 1; i < rowCount + 1; i++) {
+
+			Row row = sheet.getRow(i);
+
+			// Create a loop to print cell values in a row
+
+			Account acc = new Account();
+			acc.setUsername(row.getCell(0).getStringCellValue());
+			acc.setPassword(row.getCell(1).getStringCellValue());
+			acc.setName(row.getCell(2).getStringCellValue());
+			accList.add(acc);
+			System.out.print(acc.getUsername() + "||" + acc.getPassword());
+		}
+		workbook.close();
+	}
 	
-	@Before
+	@BeforeEach
 	public void init() throws InterruptedException {
 		ChromeOptions options = new ChromeOptions();
 
@@ -27,25 +89,30 @@ public class mainPage {
 		driver = new ChromeDriver(options);
 		js = (JavascriptExecutor) driver;
 
-		driver.get("https://depositweb.herokuapp.com/");
+		driver.get(siteUrl + "/");
 		
 		WebElement loginInput = driver.findElement(By.xpath("//*[@id=\"username\"]"));
-		loginInput.sendKeys("kienpt");
+		loginInput.sendKeys(accList.get(0).getUsername());
 
 		WebElement pwInput = driver.findElement(By.xpath("//*[@id=\"password\"]"));
-		pwInput.sendKeys("123");
+		pwInput.sendKeys(accList.get(0).getPassword());
 		
 		driver.findElement(By.xpath("/html/body/div/div/div/div[2]/form/fieldset/button")).click();
 		
 		Thread.sleep(3500);
+	}
+
+	@AfterEach
+	public void afterTest() {
+		driver.close();
 	}
 	
 	@Test
 	//Test display of main page
 	public void mainDisplay() throws InterruptedException {
 		assertAll("Main Page",
-	            () -> assertEquals("https://depositweb.herokuapp.com/", (String) driver.getCurrentUrl()),
-	            () -> assertEquals("Phạm Trung Kiên", driver.findElement(By.xpath("/html/body/nav/div/div/ul/li/a/span[1]")).getText()),
+	            () -> assertEquals(siteUrl + "/", (String) driver.getCurrentUrl()),
+	            () -> assertEquals(accList.get(0).getName(), driver.findElement(By.xpath("/html/body/nav/div/div/ul/li/a/span[1]")).getText()),
 	            () -> assertEquals("BANKADMINISTRATION", driver.findElement(By.xpath("/html/body/nav/div/div/a")).getText()),
 
 	            () -> assertEquals("Quản lý thành viên", driver.findElement(By.xpath("//*[@id=\"sidebar-collapse\"]/ul/li[1]/a")).getText()),
@@ -57,10 +124,9 @@ public class mainPage {
 	            () -> assertEquals("TRANG CHỦ", driver.findElement(By.xpath("/html/body/div[1]/div[2]/h2")).getText()),
 	            
 
-	            () -> assertEquals("https://depositweb.herokuapp.com/img/logo.png", driver.findElement(By.xpath("/html/body/div[1]/div[2]/img")).getAttribute("src"))
+	            () -> assertEquals(siteUrl + "/img/logo.png", driver.findElement(By.xpath("/html/body/div[1]/div[2]/img")).getAttribute("src"))
 	            
 	        );
-		driver.close();
 	}
 	
 	//Test navigation
@@ -70,8 +136,7 @@ public class mainPage {
 		driver.findElement(By.xpath("//*[@id=\"sidebar-collapse\"]/ul/li[1]/a")).click();
 		
 		Thread.sleep(3000); 
-		assertTrue(((String) driver.getCurrentUrl()).contains("https://depositweb.herokuapp.com/members"));
-		driver.close();
+		assertTrue(((String) driver.getCurrentUrl()).contains(siteUrl + "/members"));
 	}
 
 	@Test
@@ -80,8 +145,7 @@ public class mainPage {
 		driver.findElement(By.xpath("//*[@id=\"sidebar-collapse\"]/ul/li[2]/a")).click();
 		
 		Thread.sleep(3000); 
-		assertTrue(((String) driver.getCurrentUrl()).contains("https://depositweb.herokuapp.com/create"));
-		driver.close();
+		assertTrue(((String) driver.getCurrentUrl()).contains(siteUrl + "/create"));
 	}
 	
 	@Test
@@ -90,8 +154,7 @@ public class mainPage {
 		driver.findElement(By.xpath("//*[@id=\"sidebar-collapse\"]/ul/li[3]/a")).click();
 		
 		Thread.sleep(3000); 
-		assertTrue(((String) driver.getCurrentUrl()).contains("https://depositweb.herokuapp.com/pullout"));
-		driver.close();
+		assertTrue(((String) driver.getCurrentUrl()).contains(siteUrl + "/pullout"));
 	}
 	
 	@Test
@@ -100,8 +163,7 @@ public class mainPage {
 		driver.findElement(By.xpath("//*[@id=\"sidebar-collapse\"]/ul/li[4]/a")).click();
 		
 		Thread.sleep(3000); 
-		assertTrue(((String) driver.getCurrentUrl()).contains("https://depositweb.herokuapp.com/calc"));
-		driver.close();
+		assertTrue(((String) driver.getCurrentUrl()).contains(siteUrl + "/calc"));
 	}
 	
 	@Test
@@ -110,9 +172,7 @@ public class mainPage {
 		driver.findElement(By.xpath("/html/body/nav/div/div/a")).click();
 		
 		Thread.sleep(3000); 
-        assertEquals("https://depositweb.herokuapp.com/", (String) driver.getCurrentUrl());
-        
-		driver.close();
+        assertEquals(siteUrl + "/", (String) driver.getCurrentUrl());
 	}
 	
 	//Test logout
@@ -123,7 +183,7 @@ public class mainPage {
 		driver.findElement(By.xpath("/html/body/nav/div/div/ul/li/ul/li")).click();
 		
 		Thread.sleep(3000); 
-		assertTrue("URL Verify", ((String) driver.getCurrentUrl()).contains("https://depositweb.herokuapp.com/login"));
+		assertEquals(true, ((String) driver.getCurrentUrl()).contains(siteUrl + "/login"), "URL Verify");
 
 		driver.navigate().back();
 		Thread.sleep(3000);
@@ -131,7 +191,6 @@ public class mainPage {
 		driver.findElement(By.xpath("/html/body/nav/div/div/a")).click();
 		Thread.sleep(3000);
 		
-		assertTrue("URL Verify After Back", ((String) driver.getCurrentUrl()).contains("https://depositweb.herokuapp.com/login"));
-		driver.close();
+		assertEquals(true, ((String) driver.getCurrentUrl()).contains(siteUrl + "/login"), "URL Verify After Back");
 	}
 }
