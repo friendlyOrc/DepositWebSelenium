@@ -75,7 +75,7 @@ public class mainPage {
 	}
 
 	@Test
-	//Sign up navigation
+	//Create navigation
 	public void createNavigation() throws InterruptedException {
 		driver.findElement(By.xpath("//*[@id=\"sidebar-collapse\"]/ul/li[2]/a")).click();
 		
@@ -85,7 +85,7 @@ public class mainPage {
 	}
 	
 	@Test
-	//Sign up navigation
+	//Pull out navigation
 	public void pulloutNavigation() throws InterruptedException {
 		driver.findElement(By.xpath("//*[@id=\"sidebar-collapse\"]/ul/li[3]/a")).click();
 		
@@ -95,7 +95,7 @@ public class mainPage {
 	}
 	
 	@Test
-	//Sign up navigation
+	//Calculation navigation
 	public void calcNavigation() throws InterruptedException {
 		driver.findElement(By.xpath("//*[@id=\"sidebar-collapse\"]/ul/li[4]/a")).click();
 		
@@ -105,7 +105,7 @@ public class mainPage {
 	}
 	
 	@Test
-	//Sign up navigation
+	//Home navigation
 	public void homeNavigation() throws InterruptedException {
 		driver.findElement(By.xpath("/html/body/nav/div/div/a")).click();
 		
