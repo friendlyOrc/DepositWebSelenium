@@ -38,12 +38,15 @@ public class memberPage {
 	JavascriptExecutor js;
 
 	static ArrayList<Account> accList = new ArrayList<>();
+	static ArrayList<Account> userList = new ArrayList<>();
 
 	@BeforeAll
 	static void setUp() throws IOException {
 		String filePath = "C:\\Users\\DELL\\eclipse-workspace\\BankAutomation\\data";
-		String fileName = "Account.xlsx";
-		String sheetName = "Sheet1";
+		String fileName = "data.xlsx";
+		String accSheet = "Account";
+		String userSheet = "Sheet2";
+		
 		System.out.print("=====================================");
 		File file = new File(filePath + "\\" + fileName);
 
@@ -53,7 +56,7 @@ public class memberPage {
 
 		// Read sheet inside the workbook by its name   
 
-		Sheet sheet = workbook.getSheet(sheetName);
+		Sheet sheet = workbook.getSheet(accSheet);
 
 		// Find number of rows in excel file
 
@@ -75,6 +78,28 @@ public class memberPage {
 			accList.add(acc);
 			System.out.print(acc.getUsername() + "||" + acc.getPassword());
 		}
+		
+		sheet = workbook.getSheet(userSheet);
+		
+		rowCount = sheet.getLastRowNum() - sheet.getFirstRowNum();
+		
+
+		// Create a loop over all the rows of excel file to read it
+
+		for (int i = 1; i < rowCount + 1; i++) {
+
+			Row row = sheet.getRow(i);
+
+			// Create a loop to print cell values in a row
+
+			Account acc = new Account();
+			acc.setUsername(row.getCell(0).getStringCellValue());
+			acc.setPassword(row.getCell(1).getStringCellValue());
+			acc.setName(row.getCell(2).getStringCellValue());
+			accList.add(acc);
+			System.out.print(acc.getUsername() + "||" + acc.getPassword());
+		}
+		
 		workbook.close();
 	}
 	
@@ -138,10 +163,27 @@ public class memberPage {
 	            //Form
 	            () -> assertEquals("Đăng kí thành viên mới", driver.findElement(By.xpath("/html/body/div/div[2]/div[2]/div/h1")).getText()),
 	            () -> assertEquals("Họ và tên", driver.findElement(By.xpath("/html/body/div/div[2]/div[3]/div/div/form/fieldset/div[1]/label")).getText()),
-	            () -> assertEquals("Họ và tên", driver.findElement(By.xpath("/html/body/div/div[2]/div[3]/div/div/form/fieldset/div[1]/label")).getText())
-	            
+	            () -> assertEquals("Họ và tên", driver.findElement(By.xpath("//*[@id=\"name\"]")).getAttribute("placeholder")),
+	            () -> assertEquals("Ngày tháng năm sinh", driver.findElement(By.xpath("//label[@for='dob']")).getText()),
+	            () -> assertNotNull(driver.findElement(By.xpath("//input[@id='dob']"))),
+	            () -> assertEquals("Chọn giới tính", driver.findElement(By.xpath(" //div[@class='row add_user']//div[3]//label[1]")).getText()),
+	            () -> assertNotNull(driver.findElement(By.xpath("//input[@id='sex1']"))),
+	            () -> assertNotNull(driver.findElement(By.xpath("//input[@id='sex2']"))),
+	            () -> assertNotNull(driver.findElement(By.xpath("//input[@id='sex3']"))),
+	            () -> assertEquals("true", driver.findElement(By.xpath("//input[@id='sex1']")).getAttribute("checked")),
+	            () -> assertEquals("Địa chỉ", driver.findElement(By.xpath("//label[@for='addr']")).getText()),
+	            () -> assertEquals("Địa chỉ", driver.findElement(By.xpath("//input[@id='address']")).getAttribute("placeholder")),
+	            () -> assertEquals("Số chứng minh thư/CCCD", driver.findElement(By.xpath("//label[@for='idcard']")).getText()),
+	            () -> assertEquals("Chứng minh thư/CCCD", driver.findElement(By.xpath("//input[@id='idcard']")).getAttribute("placeholder")),
+	            () -> assertEquals("Email:", driver.findElement(By.xpath("//label[@for='username']")).getText()),
+	            () -> assertEquals("Email", driver.findElement(By.xpath("//input[@id='email']")).getAttribute("placeholder"))
 	            
 	        );
+	}
+	
+	@Test
+	public void signUpValid() {
+		
 	}
 	
 	

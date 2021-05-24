@@ -10,6 +10,7 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.interactions.Actions;
 
 import model.Account;
+import model.Saving;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -38,12 +39,14 @@ public class createPage {
 	JavascriptExecutor js;
 	
 	static ArrayList<Account> accList = new ArrayList<>();
+	static ArrayList<Saving> savList = new ArrayList<>();
 
 	@BeforeAll
 	static void setUp() throws IOException {
 		String filePath = "C:\\Users\\DELL\\eclipse-workspace\\BankAutomation\\data";
-		String fileName = "Account.xlsx";
-		String sheetName = "Sheet1";
+		String fileName = "data.xlsx";
+		String accSheet = "Account";
+		String savSheet = "Sheet2";
 		System.out.print("=====================================");
 		File file = new File(filePath + "\\" + fileName);
 
@@ -53,7 +56,7 @@ public class createPage {
 
 		// Read sheet inside the workbook by its name   
 
-		Sheet sheet = workbook.getSheet(sheetName);
+		Sheet sheet = workbook.getSheet(accSheet);
 
 		// Find number of rows in excel file
 
@@ -75,6 +78,25 @@ public class createPage {
 			accList.add(acc);
 			System.out.print(acc.getUsername() + "||" + acc.getPassword());
 		}
+		
+		sheet = workbook.getSheet(savSheet);
+		
+		rowCount = sheet.getLastRowNum() - sheet.getFirstRowNum();
+		
+
+		// Create a loop over all the rows of excel file to read it
+
+		for (int i = 1; i < rowCount + 1; i++) {
+
+			Row row = sheet.getRow(i);
+
+			// Create a loop to print cell values in a row
+
+			Saving sav = new Saving();
+			
+			savList.add(sav);
+		}
+		
 		workbook.close();
 	}
 	

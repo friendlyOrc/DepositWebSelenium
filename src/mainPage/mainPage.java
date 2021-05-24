@@ -44,8 +44,9 @@ public class mainPage {
 	@BeforeAll
 	static void setUp() throws IOException {
 		String filePath = "C:\\Users\\DELL\\eclipse-workspace\\BankAutomation\\data";
-		String fileName = "Account.xlsx";
-		String sheetName = "Sheet1";
+		String fileName = "data.xlsx";
+		String accSheet = "Account";
+		
 		System.out.print("=====================================");
 		File file = new File(filePath + "\\" + fileName);
 
@@ -55,7 +56,7 @@ public class mainPage {
 
 		// Read sheet inside the workbook by its name   
 
-		Sheet sheet = workbook.getSheet(sheetName);
+		Sheet sheet = workbook.getSheet(accSheet);
 
 		// Find number of rows in excel file
 
