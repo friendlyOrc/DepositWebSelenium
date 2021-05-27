@@ -13,7 +13,9 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.Wait;
+import org.springframework.test.annotation.Rollback;
 
+import dao.DAO;
 import model.Account;
 import model.Saving;
 
@@ -28,7 +30,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.Date;
+import java.sql.SQLException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -43,6 +47,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 
 @TestMethodOrder(OrderAnnotation.class)
 public class pulloutPage {
@@ -146,10 +151,14 @@ public class pulloutPage {
 		
 		workbook.close();
 		
+		DAO dao = new DAO();
+		dao.Backupdbtosql();
+		
 	}
 	
 	@BeforeEach
 	public void init() throws InterruptedException {
+		
 		ChromeOptions options = new ChromeOptions();
 
 		System.setProperty("webdriver.chrome.driver", "C:\\chromedriver.exe");
@@ -219,6 +228,12 @@ public class pulloutPage {
 	@AfterEach
 	public void afterTest() {
 		driver.close();
+	}
+	
+	@AfterAll
+	static void afterAll() {
+		DAO dao = new DAO();
+		dao.Restoredbfromsql("backup.sql");
 	}
 	
 	@Test
@@ -319,12 +334,12 @@ public class pulloutPage {
 		Account acc = userList.get(4);
 		Saving sav = savList.get(0);
 		Account staff = accList.get(0);
-		
+
 		driver.findElement(By.xpath("//button[@class='btn btn-success']")).click();
 		
 		Wait<WebDriver> wait = new FluentWait<WebDriver>(driver).withTimeout(Duration.ofSeconds(15))
 				.pollingEvery(Duration.ofSeconds(2)).ignoring(NoSuchElementException.class);
-
+	
 		// Wait for the title appears
 		wait.until(new Function<WebDriver, WebElement>() {
 			public WebElement apply(WebDriver driver) {
@@ -333,13 +348,13 @@ public class pulloutPage {
 		});
 		driver.findElement(By.xpath("//button[@class='btn btn-success text-center']")).click();
 		
-
+	
 		WebElement pageTitle = wait.until(new Function<WebDriver, WebElement>() {
 			public WebElement apply(WebDriver driver) {
 				return driver.findElement(By.xpath("//div[@class='col-sm-12']//h1"));
 			}
 		});
-
+	
 		savList.get(0).setBalance(Float.parseFloat(driver.findElement(By.xpath("//tr[@class='text-center']//td[3]")).getText().replace(",", "")));
 		if(sav.getType() == 1) {
 			assertEquals("Lãnh lãi hàng tháng", driver.findElement(By.xpath("//tbody/tr[6]/td[2]")).getText());
@@ -352,7 +367,7 @@ public class pulloutPage {
 	            () -> assertEquals(staff.getName(), (String) js.executeScript("return document.querySelector(\"body > div.row > div.col-sm-9.col-sm-offset-3.col-lg-10.col-lg-offset-2.main > div.row.add_user > div > table:nth-child(2) > tbody > tr:nth-child(4) > td:nth-child(2)\").innerText")),
 	            
 	            () -> assertEquals("ĐÃ RÚT", driver.findElement(By.xpath("//span[@id='stamp']")).getText()),
-
+	
 	            () -> assertEquals(acc.getName(), (String) js.executeScript("return document.querySelector(\"body > div.row > div.col-sm-9.col-sm-offset-3.col-lg-10.col-lg-offset-2.main > div.row.add_user > div > table:nth-child(4) > tbody > tr:nth-child(2) > td:nth-child(2)\").innerText")),
 	            () -> assertEquals(acc.getAddress(), (String) js.executeScript("return document.querySelector(\"body > div.row > div.col-sm-9.col-sm-offset-3.col-lg-10.col-lg-offset-2.main > div.row.add_user > div > table:nth-child(4) > tbody > tr:nth-child(3) > td:nth-child(2)\").innerText")),
 	            () -> assertEquals(acc.getIdcard(), (String) js.executeScript("return document.querySelector(\"body > div.row > div.col-sm-9.col-sm-offset-3.col-lg-10.col-lg-offset-2.main > div.row.add_user > div > table:nth-child(4) > tbody > tr:nth-child(4) > td:nth-child(2)\").innerText")),
@@ -367,6 +382,8 @@ public class pulloutPage {
 	            () -> assertEquals(String.valueOf(sav.getTime()), driver.findElement(By.xpath("//td[6]")).getText())
 	            
 				);
+		
+		
 	}
 	
 	@Test

@@ -254,6 +254,58 @@ public class login {
 		assertNotNull(message, "Msg is absent");
 		Thread.sleep(1000);
 	}
+	
+
+	@Test
+	// Test Login with special key in username
+	public void loginInvalidUNSpe() throws InterruptedException {
+
+		WebElement loginInput = driver.findElement(By.xpath("//*[@id=\"username\"]"));
+		loginInput.sendKeys(accList.get(3).getUsername());
+		WebElement pwInput = driver.findElement(By.xpath("//*[@id=\"password\"]"));
+		pwInput.sendKeys(accList.get(3).getPassword());
+
+		driver.findElement(By.xpath("/html/body/div/div/div/div[2]/form/fieldset/button")).click();
+
+		Wait<WebDriver> wait = new FluentWait<WebDriver>(driver).withTimeout(Duration.ofSeconds(15))
+				.pollingEvery(Duration.ofSeconds(2)).ignoring(NoSuchElementException.class);
+
+		// Wait for the main page appears
+		WebElement msg = wait.until(new Function<WebDriver, WebElement>() {
+			public WebElement apply(WebDriver driver) {
+				return driver.findElement(By.xpath("//div[@class='alert alert-danger']"));
+			}
+		});
+		
+		assertEquals("Tên đăng nhập không được chứa ký tự đặc biệt!", msg.getText());
+		
+	}
+	
+
+	@Test
+	// Test Login with SQL Injection
+	public void loginInvalidUNSQL() throws InterruptedException {
+
+		WebElement loginInput = driver.findElement(By.xpath("//*[@id=\"username\"]"));
+		loginInput.sendKeys(accList.get(4).getUsername());
+		WebElement pwInput = driver.findElement(By.xpath("//*[@id=\"password\"]"));
+		pwInput.sendKeys(accList.get(4).getPassword());
+
+		driver.findElement(By.xpath("/html/body/div/div/div/div[2]/form/fieldset/button")).click();
+
+		Wait<WebDriver> wait = new FluentWait<WebDriver>(driver).withTimeout(Duration.ofSeconds(15))
+				.pollingEvery(Duration.ofSeconds(2)).ignoring(NoSuchElementException.class);
+
+		// Wait for the main page appears
+		WebElement msg = wait.until(new Function<WebDriver, WebElement>() {
+			public WebElement apply(WebDriver driver) {
+				return driver.findElement(By.xpath("//div[@class='alert alert-danger']"));
+			}
+		});
+		
+		assertEquals("Tên đăng nhập không được chứa ký tự đặc biệt!", msg.getText());
+		
+	}
 
 	@Test
 	// Log in navigation

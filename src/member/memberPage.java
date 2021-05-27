@@ -12,15 +12,13 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.Wait;
+import org.springframework.test.annotation.Rollback;
 
+import dao.DAO;
 import model.Account;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
-
 import org.junit.jupiter.api.*;
 
 import java.io.File;
@@ -118,6 +116,10 @@ public class memberPage {
 		}
 		
 		workbook.close();
+		
+
+		DAO dao = new DAO();
+		dao.Backupdbtosql();
 	}
 	
 	@BeforeEach
@@ -161,6 +163,12 @@ public class memberPage {
 	@AfterEach
 	public void afterTest() {
 		driver.close();
+	}
+	
+	@AfterAll
+	static void afterAll() {
+		DAO dao = new DAO();
+		dao.Restoredbfromsql("backup.sql");
 	}
 	
 	@Test

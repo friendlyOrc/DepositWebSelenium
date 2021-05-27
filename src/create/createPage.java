@@ -13,7 +13,9 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.Wait;
+import org.springframework.test.annotation.Rollback;
 
+import dao.DAO;
 import model.Account;
 import model.Saving;
 
@@ -45,6 +47,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 @TestMethodOrder(OrderAnnotation.class)
+@Rollback
 public class createPage {
 
 //	String siteUrl = "https://depositweb.herokuapp.com";
@@ -58,6 +61,9 @@ public class createPage {
 
 	@BeforeAll
 	static void setUp() throws IOException {
+		DAO dao = new DAO();
+		dao.Backupdbtosql();
+		
 		String filePath = "C:\\Users\\DELL\\eclipse-workspace\\BankAutomation\\data";
 		String fileName = "data.xlsx";
 		String accSheet = "Account";
@@ -143,6 +149,7 @@ public class createPage {
 		}
 		
 		workbook.close();
+		
 	}
 	
 	@BeforeEach
@@ -211,6 +218,13 @@ public class createPage {
 	public void afterTest() {
 		driver.close();
 	}
+
+
+	@AfterAll
+	static void afterAll() {
+		DAO dao = new DAO();
+		dao.Restoredbfromsql("backup.sql");
+	}
 	
 	@Test
 //	Check if the search page displays correctly
@@ -231,7 +245,7 @@ public class createPage {
 	            () -> assertEquals("Tính lãi", driver.findElement(By.xpath("//*[@id=\"sidebar-collapse\"]/ul/li[4]/a")).getText()),
 
 	            //Side bar active element
-	            () -> assertEquals("active", driver.findElement(By.xpath("//*[@id=\"sidebar-collapse\"]/ul/li[3]")).getAttribute("class")),
+	            () -> assertEquals("active", driver.findElement(By.xpath("//*[@id=\"sidebar-collapse\"]/ul/li[2]")).getAttribute("class")),
 	            
 	            //Focus element
 	            () -> assertEquals(driver.findElement(By.xpath("//input[@id='balance']")), driver.switchTo().activeElement()),
@@ -265,111 +279,111 @@ public class createPage {
 	}
 	
 
-		@Order(2)
-		@ParameterizedTest
-		@ValueSource(ints = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16})
-		void createSavingType1(int argument) {
-			Saving sav = savList.get(argument);
-			Account acc = accList.get(0);
-			Account client = userList.get(4);
-			
-			js.executeScript("document.querySelector(\"#type\").selectedIndex = " + (sav.getType() - 1));
-			js.executeScript("document.querySelector(\"#balance\").value = " + sav.getBalance());
-			js.executeScript("document.querySelector(\"#time\").selectedIndex = " + argument);
-			
-			driver.findElement(By.xpath("//button[@type='submit']")).click();
-			
-			Wait<WebDriver> wait = new FluentWait<WebDriver>(driver).withTimeout(Duration.ofSeconds(15))
-					.pollingEvery(Duration.ofSeconds(2)).ignoring(NoSuchElementException.class);
-	
-			// Wait for the main page appears
-			WebElement msg = wait.until(new Function<WebDriver, WebElement>() {
-				public WebElement apply(WebDriver driver) {
-					return driver.findElement(By.xpath("//div[@class='alert alert-success']"));
-				}
-			});
-			
-			Date sqlDate = new Date(Calendar.getInstance().getTime().getTime());
-			System.out.println(sqlDate);
-			
-			if(sav.getType() == 1) {
-				assertEquals("Lãnh lãi hàng tháng", driver.findElement(By.xpath("//tbody/tr[6]/td[2]")).getText());
-			}else {
-				assertEquals("Lãnh lãi cuối kỳ hạn", driver.findElement(By.xpath("//tbody/tr[6]/td[2]")).getText());
+	@Order(2)
+	@ParameterizedTest
+	@ValueSource(ints = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16})
+	void createSavingType1(int argument) {
+		Saving sav = savList.get(argument);
+		Account acc = accList.get(0);
+		Account client = userList.get(4);
+		
+		js.executeScript("document.querySelector(\"#type\").selectedIndex = " + (sav.getType() - 1));
+		js.executeScript("document.querySelector(\"#balance\").value = " + sav.getBalance());
+		js.executeScript("document.querySelector(\"#time\").selectedIndex = " + argument);
+		
+		driver.findElement(By.xpath("//button[@type='submit']")).click();
+		
+		Wait<WebDriver> wait = new FluentWait<WebDriver>(driver).withTimeout(Duration.ofSeconds(15))
+				.pollingEvery(Duration.ofSeconds(2)).ignoring(NoSuchElementException.class);
+
+		// Wait for the main page appears
+		WebElement msg = wait.until(new Function<WebDriver, WebElement>() {
+			public WebElement apply(WebDriver driver) {
+				return driver.findElement(By.xpath("//div[@class='alert alert-success']"));
 			}
-			
-			assertAll("Create Successfully",
-				() -> assertEquals("Tạo sổ tiết kiệm thành công!", msg.getText()),
-				() -> assertEquals(acc.getName(), driver.findElement(By.xpath("//h5[2]//span[1]")).getText()),
-				
-				() -> assertEquals(client.getName(), driver.findElement(By.xpath("//tbody/tr[2]/td[2]")).getText()),
-				() -> assertEquals(client.getAddress(), driver.findElement(By.xpath("//tbody/tr[3]/td[2]")).getText()),
-				() -> assertEquals(client.getIdcard(), driver.findElement(By.xpath("//tbody/tr[4]/td[2]")).getText()),
-				
-				() -> assertEquals(String.valueOf(sav.getTime()), driver.findElement(By.xpath("//tbody/tr[5]/td[2]")).getText()),
-				() -> assertEquals(sqlDate.toString(), driver.findElement(By.xpath("//tbody/tr[7]/td[2]")).getText()),
-				
-				() -> assertEquals(sqlDate.toString(), driver.findElement(By.xpath("//tbody/tr[7]/td[2]")).getText()),
-				() -> assertEquals(sav.getBalance() + "0", driver.findElement(By.xpath("//td[3]")).getText().replaceAll(",", "")),
-				() -> assertEquals(sav.getBalance() + "0", driver.findElement(By.xpath("//td[4]")).getText().replaceAll(",", "")),
-				() -> assertEquals(String.valueOf(sav.getInterest()), driver.findElement(By.xpath("//td[5]")).getText()),
-				() -> assertEquals(String.valueOf(sav.getTime()), driver.findElement(By.xpath("//td[6]")).getText())
-				
-				);
+		});
+		
+		Date sqlDate = new Date(Calendar.getInstance().getTime().getTime());
+		System.out.println(sqlDate);
+		
+		if(sav.getType() == 1) {
+			assertEquals("Lãnh lãi hàng tháng", driver.findElement(By.xpath("//tbody/tr[6]/td[2]")).getText());
+		}else {
+			assertEquals("Lãnh lãi cuối kỳ hạn", driver.findElement(By.xpath("//tbody/tr[6]/td[2]")).getText());
 		}
 		
-		@Order(3)
-		@ParameterizedTest
-		@ValueSource(ints = {17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33})
-		void createSavingType2(int argument) {
-			Saving sav = savList.get(argument);
-			Account acc = accList.get(0);
-			Account client = userList.get(4);
-
-			js.executeScript("document.querySelector(\"#type\").selectedIndex = " + (sav.getType() - 1));
-			js.executeScript("document.querySelector(\"#balance\").value = " + sav.getBalance());
-			js.executeScript("document.querySelector(\"#time\").selectedIndex = " + (argument - 17));
+		assertAll("Create Successfully",
+			() -> assertEquals("Tạo sổ tiết kiệm thành công!", msg.getText()),
+			() -> assertEquals(acc.getName(), driver.findElement(By.xpath("//h5[2]//span[1]")).getText()),
 			
-			driver.findElement(By.xpath("//button[@type='submit']")).click();
+			() -> assertEquals(client.getName(), driver.findElement(By.xpath("//tbody/tr[2]/td[2]")).getText()),
+			() -> assertEquals(client.getAddress(), driver.findElement(By.xpath("//tbody/tr[3]/td[2]")).getText()),
+			() -> assertEquals(client.getIdcard(), driver.findElement(By.xpath("//tbody/tr[4]/td[2]")).getText()),
 			
-			Wait<WebDriver> wait = new FluentWait<WebDriver>(driver).withTimeout(Duration.ofSeconds(15))
-					.pollingEvery(Duration.ofSeconds(2)).ignoring(NoSuchElementException.class);
+			() -> assertEquals(String.valueOf(sav.getTime()), driver.findElement(By.xpath("//tbody/tr[5]/td[2]")).getText()),
+			() -> assertEquals(sqlDate.toString(), driver.findElement(By.xpath("//tbody/tr[7]/td[2]")).getText()),
+			
+			() -> assertEquals(sqlDate.toString(), driver.findElement(By.xpath("//tbody/tr[7]/td[2]")).getText()),
+			() -> assertEquals(sav.getBalance() + "0", driver.findElement(By.xpath("//td[3]")).getText().replaceAll(",", "")),
+			() -> assertEquals(sav.getBalance() + "0", driver.findElement(By.xpath("//td[4]")).getText().replaceAll(",", "")),
+			() -> assertEquals(String.valueOf(sav.getInterest()), driver.findElement(By.xpath("//td[5]")).getText()),
+			() -> assertEquals(String.valueOf(sav.getTime()), driver.findElement(By.xpath("//td[6]")).getText())
+			
+			);
+	}
 	
-			// Wait for the msg appears
-			WebElement msg = wait.until(new Function<WebDriver, WebElement>() {
-				public WebElement apply(WebDriver driver) {
-					return driver.findElement(By.xpath("//div[@class='alert alert-success']"));
-				}
-			});
-			
-			Date sqlDate = new Date(Calendar.getInstance().getTime().getTime());
-			System.out.println(sqlDate);
-			
-			if(sav.getType() == 1) {
-				assertEquals("Lãnh lãi hàng tháng", driver.findElement(By.xpath("//tbody/tr[6]/td[2]")).getText());
-			}else {
-				assertEquals("Lãnh lãi cuối kỳ", driver.findElement(By.xpath("//tbody/tr[6]/td[2]")).getText());
+	@Order(3)
+	@ParameterizedTest
+	@ValueSource(ints = {17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33})
+	void createSavingType2(int argument) {
+		Saving sav = savList.get(argument);
+		Account acc = accList.get(0);
+		Account client = userList.get(4);
+
+		js.executeScript("document.querySelector(\"#type\").selectedIndex = " + (sav.getType() - 1));
+		js.executeScript("document.querySelector(\"#balance\").value = " + sav.getBalance());
+		js.executeScript("document.querySelector(\"#time\").selectedIndex = " + (argument - 17));
+		
+		driver.findElement(By.xpath("//button[@type='submit']")).click();
+		
+		Wait<WebDriver> wait = new FluentWait<WebDriver>(driver).withTimeout(Duration.ofSeconds(15))
+				.pollingEvery(Duration.ofSeconds(2)).ignoring(NoSuchElementException.class);
+
+		// Wait for the msg appears
+		WebElement msg = wait.until(new Function<WebDriver, WebElement>() {
+			public WebElement apply(WebDriver driver) {
+				return driver.findElement(By.xpath("//div[@class='alert alert-success']"));
 			}
-			
-			assertAll("Create Successfully",
-				() -> assertEquals("Tạo sổ tiết kiệm thành công!", msg.getText()),
-				() -> assertEquals(acc.getName(), driver.findElement(By.xpath("//h5[2]//span[1]")).getText()),
-				
-				() -> assertEquals(client.getName(), driver.findElement(By.xpath("//tbody/tr[2]/td[2]")).getText()),
-				() -> assertEquals(client.getAddress(), driver.findElement(By.xpath("//tbody/tr[3]/td[2]")).getText()),
-				() -> assertEquals(client.getIdcard(), driver.findElement(By.xpath("//tbody/tr[4]/td[2]")).getText()),
-				
-				() -> assertEquals(String.valueOf(sav.getTime()), driver.findElement(By.xpath("//tbody/tr[5]/td[2]")).getText()),
-				() -> assertEquals(sqlDate.toString(), driver.findElement(By.xpath("//tbody/tr[7]/td[2]")).getText()),
-				
-				() -> assertEquals(sqlDate.toString(), driver.findElement(By.xpath("//tbody/tr[7]/td[2]")).getText()),
-				() -> assertEquals(sav.getBalance() + "0", driver.findElement(By.xpath("//td[3]")).getText().replaceAll(",", "")),
-				() -> assertEquals(sav.getBalance() + "0", driver.findElement(By.xpath("//td[4]")).getText().replaceAll(",", "")),
-				() -> assertEquals(String.valueOf(sav.getInterest()), driver.findElement(By.xpath("//td[5]")).getText()),
-				() -> assertEquals(String.valueOf(sav.getTime()), driver.findElement(By.xpath("//td[6]")).getText())
-				
-				);
+		});
+		
+		Date sqlDate = new Date(Calendar.getInstance().getTime().getTime());
+		System.out.println(sqlDate);
+		
+		if(sav.getType() == 1) {
+			assertEquals("Lãnh lãi hàng tháng", driver.findElement(By.xpath("//tbody/tr[6]/td[2]")).getText());
+		}else {
+			assertEquals("Lãnh lãi cuối kỳ", driver.findElement(By.xpath("//tbody/tr[6]/td[2]")).getText());
 		}
+		
+		assertAll("Create Successfully",
+			() -> assertEquals("Tạo sổ tiết kiệm thành công!", msg.getText()),
+			() -> assertEquals(acc.getName(), driver.findElement(By.xpath("//h5[2]//span[1]")).getText()),
+			
+			() -> assertEquals(client.getName(), driver.findElement(By.xpath("//tbody/tr[2]/td[2]")).getText()),
+			() -> assertEquals(client.getAddress(), driver.findElement(By.xpath("//tbody/tr[3]/td[2]")).getText()),
+			() -> assertEquals(client.getIdcard(), driver.findElement(By.xpath("//tbody/tr[4]/td[2]")).getText()),
+			
+			() -> assertEquals(String.valueOf(sav.getTime()), driver.findElement(By.xpath("//tbody/tr[5]/td[2]")).getText()),
+			() -> assertEquals(sqlDate.toString(), driver.findElement(By.xpath("//tbody/tr[7]/td[2]")).getText()),
+			
+			() -> assertEquals(sqlDate.toString(), driver.findElement(By.xpath("//tbody/tr[7]/td[2]")).getText()),
+			() -> assertEquals(sav.getBalance() + "0", driver.findElement(By.xpath("//td[3]")).getText().replaceAll(",", "")),
+			() -> assertEquals(sav.getBalance() + "0", driver.findElement(By.xpath("//td[4]")).getText().replaceAll(",", "")),
+			() -> assertEquals(String.valueOf(sav.getInterest()), driver.findElement(By.xpath("//td[5]")).getText()),
+			() -> assertEquals(String.valueOf(sav.getTime()), driver.findElement(By.xpath("//td[6]")).getText())
+			
+			);
+	}
 		
 	// No balance warning message	
 	@Test

@@ -31,5 +31,9 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
 	<classpathentry kind="lib" path="F:/Download/xmlbeans-5.0.0.jar"/>
 	<classpathentry kind="lib" path="F:/Download/log4j-api-2.14.1.jar"/>
+	<classpathentry kind="lib" path="F:/Download/spring-test-5.3.7.jar"/>
+	<classpathentry kind="lib" path="F:/Download/spring-boot-starter-test-2.5.0.jar"/>
+	<classpathentry kind="lib" path="F:/Download/spring-context-5.3.7.jar"/>
+	<classpathentry kind="lib" path="F:/Tool/mysql-connector-java-8.0.20/mysql-connector-java-8.0.20/mysql-connector-java-8.0.20.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

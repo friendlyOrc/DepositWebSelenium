@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 
@@ -14,6 +16,8 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import dao.DAO;
 
 public class testReadFile {
 
@@ -85,7 +89,7 @@ public class testReadFile {
 
 	// Main function is calling readExcel function to read data from excel file
 
-	public static void main(String... strings) throws IOException {
+	public static void main(String... strings) throws IOException, SQLException {
 //
 //		// Create an object of ReadGuru99ExcelFile class
 //
@@ -98,6 +102,14 @@ public class testReadFile {
 //		// Call read file method of the class to read data
 //
 //		objExcelFile.readExcel(filePath, "ExportExcel.xlsx", "ExcelGuru99Demo");
+		
+		DAO dao = new DAO();
+//		dao.rollingInTheBack();
+//		dao.Backupdbtosql();
+		dao.Restoredbfromsql("backup.sql");
+//		Process runProcess = Runtime.getRuntime().exec("C:\\Program Files\\MySQL\\MySQL Workbench 8.0\\mysqldump.exe -uroot -pG34r1#c42& bank -r\"C:\\Users\\DELL\\eclipse-workspace\\BankAutomation\\backup\\bank.sql");
+
+//        Runtime.getRuntime().exec("C:\\Program Files\\MySQL\\MySQL Workbench 8.0\\mysql -u root -pG34r1#c42&  bank C:\\Users\\DELL\\eclipse-workspace\\BankAutomation\\backup\\bank.sql");
 
 	}
 
