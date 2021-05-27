@@ -35,7 +35,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 
 public class mainPage {
-	String siteUrl = "https://depositweb.herokuapp.com";
+//	String siteUrl = "https://depositweb.herokuapp.com";
+	String siteUrl = "http://localhost:8082";
 	WebDriver driver;
 	JavascriptExecutor js;
 

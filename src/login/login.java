@@ -46,7 +46,8 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class login {
-	String siteUrl = "https://depositweb.herokuapp.com";
+//	String siteUrl = "https://depositweb.herokuapp.com";
+	String siteUrl = "http://localhost:8082";
 	WebDriver driver;
 	JavascriptExecutor js;
 
@@ -142,7 +143,7 @@ public class login {
 				() -> assertEquals("Đăng nhập",
 						driver.findElement(By.xpath("/html/body/div/div/div/div[2]/form/fieldset/button")).getText()),
 
-				() -> assertEquals("https://depositweb.herokuapp.com/img/logo.png",
+				() -> assertEquals(siteUrl + "/img/logo.png",
 						driver.findElement(By.xpath("/html/body/div/div/div/div[1]/img")).getAttribute("src"))
 
 		);
@@ -281,6 +282,6 @@ public class login {
 
 		Thread.sleep(3000);
 
-		assertEquals(true, ((String) driver.getCurrentUrl()).contains("https://depositweb.herokuapp.com/"));
+		assertEquals(true, ((String) driver.getCurrentUrl()).contains(siteUrl));
 	}
 }
